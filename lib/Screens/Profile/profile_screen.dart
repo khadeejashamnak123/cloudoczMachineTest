@@ -303,7 +303,7 @@ logOutAlert(BuildContext context) {
                     InkWell(
                       onTap: () async {
                         mainProvider.clearController();
-                        callNextReplacement(const LoginScreen(), context);
+                        callNext(const LoginScreen(), context);
                       },
                       child: Container(
                         alignment: Alignment.center,

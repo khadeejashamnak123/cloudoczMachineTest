@@ -40,41 +40,49 @@ class TaskListPage extends StatelessWidget {
           ),
           SizedBox(width: width*0.07,)
         ],
+
+
       ),
-      body: taskProvider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-            padding: const EdgeInsets.only(left: 20,right: 20,top: 20),
-            child: ListView.builder(
-                    itemCount: taskProvider.tasks.length,
-                    itemBuilder: (context, index) {
-            final task = taskProvider.tasks[index];
-            return Card(
-              child: ListTile(
-                title: Text(task.name),
-                subtitle: Text(task.description),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit,color: Colors.green,),
-                      onPressed: () {
-                        callNext(TaskFormScreen(task: task), context);
-                      },
+      body:
+      Consumer<MainProvider>(
+        builder: (context,value,child) {
+          return value.tasks.isEmpty?
+          Center(
+            child: Text("No data found"),
+          ):Padding(
+                padding: const EdgeInsets.only(left: 20,right: 20,top: 20),
+                child: ListView.builder(
+                        itemCount: taskProvider.tasks.length,
+                        itemBuilder: (context, index) {
+                final task = taskProvider.tasks[index];
+                return Card(
+                  child: ListTile(
+                    title: Text(task.name),
+                    subtitle: Text(task.description),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit,color: Colors.green,),
+                          onPressed: () {
+                            callNext(TaskFormScreen(task: task), context);
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete,color: Colors.red,),
+                          onPressed: () async {
+                            deleteTask(context,task.id);
+                          },
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.delete,color: Colors.red,),
-                      onPressed: () async {
-                        deleteTask(context,task.id);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-                    },
                   ),
-          ),
+                );
+                        },
+                      ),
+              );
+        }
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: newBlue,
         onPressed: () {

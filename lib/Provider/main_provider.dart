@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
 import 'package:new_machine_test/Constants/functions.dart';
 import 'package:new_machine_test/Screens/Task/task_list_screen.dart';
@@ -15,7 +16,6 @@ class MainProvider extends ChangeNotifier {
   String? name;
   String? position;
   String? profileImage;
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String usernameError = '';
   String passwordError = '';
 
@@ -33,7 +33,7 @@ class MainProvider extends ChangeNotifier {
           'password': passwordController.text,
         }),
       );
-      if (formKey.currentState?.validate() ?? false) {
+
         if (response.statusCode == 200) {
           final jsonResponse = json.decode(response.body);
           authToken = jsonResponse['token'];
@@ -51,11 +51,7 @@ class MainProvider extends ChangeNotifier {
         } else {
           throw Exception('Failed to login');
         }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invalid credentials! Please try again.')),
-        );
-      }
+
     } catch (e) {
       print("exception  $e ");
     }
@@ -71,7 +67,7 @@ class MainProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future<void> fetchTasks() async {
-    _isLoading = true;
+EasyLoading.show(status: 'Loading...');
     notifyListeners();
 
     try {
@@ -80,16 +76,20 @@ class MainProvider extends ChangeNotifier {
       if (response.containsKey('data')) {
         final List<dynamic> taskData = response['data'];
         _tasks = taskData.map((task) => Task.fromJson(task)).toList();
+        notifyListeners();
+
       } else {
+
         print('No tasks found in response');
         _tasks = [];
       }
     } catch (e) {
+
       print('Error fetching tasks: $e');
       _tasks = [];
     }
 
-    _isLoading = false;
+    EasyLoading.dismiss();
     notifyListeners();
   }
 
@@ -97,18 +97,28 @@ class MainProvider extends ChangeNotifier {
       BuildContext context, String title, String description) async {
     await _taskService.createTask(context, title, description);
     await fetchTasks();
+    notifyListeners();
+
   }
 
   Future<void> updateTask(
       BuildContext context, int id, String title, String description) async {
     await _taskService.updateTask(context, id, title, description);
     await fetchTasks();
+    notifyListeners();
+
   }
+
+
+
+
 
   Future<void> deleteTask(BuildContext context, int id) async {
     await _taskService.deleteTask(id);
-    finish(context);
     await fetchTasks();
+
+    finish(context);
+    notifyListeners();
   }
 
   toggleVisibility() {

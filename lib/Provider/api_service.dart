@@ -78,5 +78,6 @@ class TaskService {
     if (response.statusCode != 200) {
       throw Exception('Failed to delete task');
     }
+
   }
 }
